@@ -19,17 +19,20 @@ class Settings(BaseSettings):
     SERVER_HOST: str
     SERVER_PORT: int
 
+
 class ContainerDevSettings(Settings):
     model_config = SettingsConfigDict(
         env_file="./.env.dev", env_file_encoding="utf-8", case_sensitive=True
     )
     ENV: str = "dev"
 
+
 class ContainerTestSettings(Settings):
     model_config = SettingsConfigDict(
         env_file="./.env.test", env_file_encoding="utf-8", case_sensitive=True
     )
     ENV: str = "test"
+
 
 def get_settings(env: str = "dev") -> Settings:
     """
@@ -50,6 +53,7 @@ def get_settings(env: str = "dev") -> Settings:
         return ContainerTestSettings()
 
     raise ValueError("Invalid environment. Must be 'dev' or 'test'")
+
 
 _env = os.environ.get("ENV", "dev")
 

@@ -1,39 +1,22 @@
 import pytest
+from sqlalchemy.ext.asyncio import create_async_engine
 from src.api.v1.wallets.models import Base
-from tests.conftest import engine
-# from tests.conftest import TEST_SQLALCHEMY_DATABASE_URL
-from scripts.initdb import seed_database
-from src.config import get_settings
-from tests.conftest import engine
-
+from src.database import SQLALCHEMY_DATABASE_URL
 
 
 @pytest.fixture(scope="function", autouse=True)
-async def setup_and_teardown(get_test_db):
-    """Async fixture that recreates tables before and after each test."""
-    async with get_test_db as conn:
-        try:
-            await conn.run_sync(Base.metadata.drop_all(bind=engine))
-        except Exception:
-            pass
-        await conn.run_sync(Base.metadata.create_all(bind=engine))
-    # yield
-    # async with engine.begin() as conn:
-    #     await conn.run_sync(Base.metadata.drop_all)
+async def setup_and_teardown():
+    """
+    Janitor fixture that sets up and tears down test database
+    tables based on SQLAlchemy models, so each test maintains
+    maximum test-isolation. Applied to all tests
+    """
+    # janitor_engine = create_async_engine(TEST_SQLALCHEMY_DATABASE_URL)
+    janitor_engine = create_async_engine(SQLALCHEMY_DATABASE_URL)
+    async with janitor_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
     yield
-    await get_test_db.run_sync(Base.metadata.drop_all(bind=engine))
-
-@pytest.fixture
-def seed_test_database():
-    seed_database("test")
-
-
-@pytest.fixture
-def test_settings():
-    return get_settings("test")
-
-@pytest.fixture
-async def get_test_db(get_test_local_session):
-    db = get_test_local_session()
-    async with db as session:
-        yield session
+    async with janitor_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+    await janitor_engine.dispose()

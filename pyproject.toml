@@ -1,7 +1,7 @@
 [project]
 name = "itk-academy-testovoe"
 version = "0.1.0"
-description = "Add your description here"
+description = "itk-academy-testovoe description"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
@@ -25,7 +25,6 @@ dependencies = [
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 
-
 [tool.pytest_env]
 ENV = "test"
 POSTGRES_USER= "test"
@@ -38,16 +37,12 @@ line-length = 88
 [tool.ruff.format]
 # Like Black, use double quotes for strings.
 quote-style = "double"
-
 # Like Black, indent with spaces, rather than tabs.
 indent-style = "space"
-
 # Like Black, respect magic trailing commas.
 skip-magic-trailing-comma = false
-
 # Like Black, automatically detect the appropriate line ending.
 line-ending = "auto"
 
 [tool.ruff.lint]
 extend-select = ["E", "W"]
-

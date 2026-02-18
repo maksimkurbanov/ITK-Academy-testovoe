@@ -1,38 +1,46 @@
-from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, insert
-from src.database import get_session
 from .models import Wallet
+from .schemas import WalletOperationRequest
+from typing import Optional
+from uuid import UUID
 
 
 class WalletService:
-    def __init__(self):
-        ...
+    @staticmethod
+    async def get(db: AsyncSession, wallet_uuid: UUID) -> Optional[Wallet]:
+        """
+        Get wallet balance by UUID from database.
 
-    # def __init__(self, session: AsyncSession = Depends(get_session)):
-    #     self.session = session
+        Parameters:
+            db (AsyncSession): The database session.
+            wallet_uuid (UUID): Wallet UUID.
 
-    # async def get(self, wallet_uuid):
-    #     statement = select(Wallet).where(Wallet.id == wallet_uuid).with_for_update()
-    #     result = await self.session.execute(statement)
-    #     wallet = result.scalars().one_or_none()
-    #     return wallet
-
-    async def get(self, db: AsyncSession, wallet_uuid):
+        Returns:
+            Optional[Wallet]: The wallet found by UUID,
+            or None if not found.
+        """
         statement = select(Wallet).where(Wallet.id == wallet_uuid).with_for_update()
         result = await db.execute(statement)
         wallet = result.scalars().one_or_none()
         return wallet
 
-    # async def create(self, wallet_uuid, amount):
-    #     statement = insert(Wallet).values((wallet_uuid, amount)).returning(Wallet)
-    #     result = await self.session.execute(statement)
-    #     wallet = result.scalars().one()
-    #     await self.session.commit()
-    #     await self.session.refresh(wallet)
-    #     return wallet
+    @staticmethod
+    async def create(
+        db: AsyncSession, wallet_uuid: UUID, amount: int
+    ) -> Optional[Wallet]:
+        """
+        Create a new wallet with given UUID and amount in the database.
 
-    async def create(self, db: AsyncSession, wallet_uuid, amount):
+        Parameters:
+            db (AsyncSession): The database session.
+            wallet_uuid (UUID): Wallet UUID.
+            amount (int): amount to be added to the wallet upon creation.
+
+        Returns:
+            Optional[Wallet]: Wallet with given UUID,
+            or None if creation failed.
+        """
         statement = insert(Wallet).values((wallet_uuid, amount)).returning(Wallet)
         result = await db.execute(statement)
         wallet = result.scalars().one()
@@ -40,15 +48,27 @@ class WalletService:
         await db.refresh(wallet)
         return wallet
 
-    async def update(self, db: AsyncSession, wallet, operation_data):
-        wallet.balance += int(operation_data.operation_type + str(operation_data.amount))
+    @staticmethod
+    async def update(
+        db: AsyncSession, wallet: Wallet, operation_data: WalletOperationRequest
+    ) -> Wallet:
+        """
+        Update wallet's balance depending on operation:
+        adds to wallet's balance with DEPOSIT operations,
+        substracts from balance with WITHDRAW operations.
+
+        Parameters:
+            db (AsyncSession): The database session.
+            wallet (Wallet): Wallet object to update.
+            operation_data (WalletOperationRequest): Data from
+            incoming request containing operation type and amount
+
+        Returns:
+            Wallet: Updated Wallet object.
+        """
+        wallet.balance += int(
+            operation_data.operation_type + str(operation_data.amount)
+        )
         await db.commit()
         await db.refresh(wallet)
         return wallet
-
-
-    # async def update(self, wallet, operation_data):
-    #     wallet.balance += int(operation_data.operation_type + str(operation_data.amount))
-    #     await self.session.commit()
-    #     await self.session.refresh(wallet)
-    #     return wallet
