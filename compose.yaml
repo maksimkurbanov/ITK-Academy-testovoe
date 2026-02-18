@@ -1,0 +1,47 @@
+services:
+  db:
+    container_name: db
+    image: postgres:18-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql # Persistant database data
+    env_file:
+      - .env.dev
+    healthcheck: # Ensure the DB is ready before the app starts
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  test-db:
+    container_name: test-db
+    image: postgres:18-alpine
+    ports:
+      - '5433:5432'
+    env_file:
+      - .env.test
+    healthcheck: # Ensure the DB is ready before the app starts
+      test: [ "CMD", "pg_isready", "-U", "test"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    container_name: app
+    build: . # Builds from your local Dockerfile
+    command: sh -c "alembic upgrade head && uv run python src/main.py" # Command to run migrations and start app
+    volumes:
+      - .:/code # Mount your application code
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy # Wait for the DB healthcheck to pass to ensure the database starts first
+      test-db:
+        condition: service_healthy # Wait for the DB healthcheck to pass to ensure the database starts first
+    env_file:
+      - .env.dev
+
+volumes:
+  db:
