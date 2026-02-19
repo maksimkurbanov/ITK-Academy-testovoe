@@ -7,29 +7,14 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-from src.database import SQLALCHEMY_DATABASE_URL
+from src.database import DEV_DATABASE_URL
 from src.api.v1.wallets.models import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option("sqlalchemy.url", SQLALCHEMY_DATABASE_URL)
+config.set_main_option("sqlalchemy.url", DEV_DATABASE_URL)
 # section = config.config_ini_section
-# config.set_section_option(
-#     section, "POSTGRES_USER", os.environ.get("POSTGRES_USER", "postgres")
-# )
-# config.set_section_option(
-#     section, "POSTGRES_PASSWORD", os.environ.get("POSTGRES_PASSWORD", "pass")
-# )
-# config.set_section_option(
-#     section, "POSTGRES_HOST", os.environ.get("POSTGRES_HOST", "localhost")
-# )
-# config.set_section_option(
-#     section, "POSTGRES_PORT", os.environ.get("POSTGRES_PORT", "5432")
-# )
-# config.set_section_option(
-#     section, "POSTGRES_DB", os.environ.get("POSTGRES_DB", "itk-pg")
-# )
 
 
 # Interpret the config file for Python logging.

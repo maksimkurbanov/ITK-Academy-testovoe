@@ -24,6 +24,7 @@ async def test_create_wallet(client):
 async def test_get_nonexisting_wallet_balance(client):
     """Get balance of a non-existing wallet"""
     wallet_uuid = uuid.uuid4()
+
     response = await client.get(f"{prefix}/{wallet_uuid}")
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json()["detail"] == f"Wallet with ID {wallet_uuid} not found"
@@ -38,7 +39,6 @@ async def test_get_existing_wallet_balance(client):
         f"{prefix}/{wallet_uuid}/operation",
         json={"operation_type": "DEPOSIT", "amount": amount},
     )
-
     response = await client.get(f"{prefix}/{wallet_uuid}")
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["balance"] == amount
