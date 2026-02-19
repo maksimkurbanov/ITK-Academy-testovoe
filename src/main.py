@@ -1,7 +1,7 @@
 import asyncio
 import uvicorn
 from fastapi import FastAPI
-from src.config import settings
+from src.config import dev_settings
 from src.api.v1.wallets.router import router as wallets_router
 
 
@@ -17,12 +17,11 @@ async def root():
 
 
 async def main():
-    uvicorn.run(
-        app="main:app",
-        host=settings.SERVER_HOST,
-        port=settings.SERVER_PORT,
-        reload=True if settings.ENV != "production" else False,
+    config = uvicorn.Config(
+        "main:app", host=dev_settings.SERVER_HOST, port=dev_settings.SERVER_PORT
     )
+    server = uvicorn.Server(config)
+    await server.serve()
 
 
 if __name__ == "__main__":
