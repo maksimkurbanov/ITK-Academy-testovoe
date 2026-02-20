@@ -22,7 +22,7 @@ services:
     env_file:
       - .env.test
     healthcheck: # Ensure the DB is ready before the app starts
-      test: [ "CMD", "pg_isready", "-U", "test"]
+      test: ["CMD", "pg_isready", "-U", "test", "-h", "test-db"]
       interval: 5s
       timeout: 5s
       retries: 5
