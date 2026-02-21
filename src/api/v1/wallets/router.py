@@ -65,16 +65,14 @@ async def wallet_operation(
         HTTPException: If the wallet's balance is insufficient for given operation.
     """
     wallet = await wallet_service.get(db, wallet_uuid)
-    if (
-        operation_data.operation_type == "+"
-    ):  # DEPOSIT operation mapping from schemas.py
+    # DEPOSIT operation mapping from schemas.py
+    if operation_data.operation_type == "+":
         if not wallet:
             wallet = await wallet_service.create(db, wallet_uuid, operation_data.amount)
             response.status_code = status.HTTP_201_CREATED
             return wallet
-    if (
-        operation_data.operation_type == "-"
-    ):  # WITHDRAW operation mapping from schemas.py
+    # WITHDRAW operation mapping from schemas.py
+    if operation_data.operation_type == "-":
         if not wallet:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
