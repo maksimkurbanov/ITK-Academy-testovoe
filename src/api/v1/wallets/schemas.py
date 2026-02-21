@@ -31,7 +31,6 @@ class WalletOperationRequest(BaseModel):
     amount: int = Field(gt=0)  # Only allow positive operation amounts
 
     @field_validator("operation_type")
-    @classmethod
     def map_operation_str(cls, val: str):
         operation_map = {"DEPOSIT": "+", "WITHDRAW": "-"}
         if val in operation_map:
